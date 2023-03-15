@@ -102,6 +102,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: trustyai-operator
+    namespace: "trustyai"
 ---
 apiVersion: apps/v1
 kind: Deployment
