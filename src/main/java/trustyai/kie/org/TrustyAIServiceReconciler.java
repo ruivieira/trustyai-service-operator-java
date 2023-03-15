@@ -16,7 +16,7 @@ import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ControllerConfiguration(name = "trustyai-service", namespaces = Constants.WATCH_CURRENT_NAMESPACE)
+@ControllerConfiguration(name = "trustyai-service", namespaces = "trustyai")
 public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
     private final KubernetesClient client;
     static final Logger log = LoggerFactory.getLogger(TrustyAIServiceReconciler.class);
