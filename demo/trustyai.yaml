@@ -1,7 +1,7 @@
 apiVersion: org.kie.trustyai/v1alpha1
 kind: TrustyAIService
 metadata:
-  name: trustyai-service-test
+  name: trustyai
 spec:
   image: "quay.io/trustyai/trustyai-service:0.1.0"
   storage:

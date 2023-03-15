@@ -1,5 +1,6 @@
 package trustyai.kie.org;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,9 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         this.client = client;
     }
 
-    // TODO Fill in the rest of the reconciler
-
     @Override
     public UpdateControl<TrustyAIService> reconcile(TrustyAIService resource, Context context) {
+
         final var labels = Map.of(APP_LABEL, resource.getMetadata().getName());
         final var name = resource.getMetadata().getName();
         final var spec = resource.getSpec();
@@ -134,8 +134,6 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         var.setName(name);
         final EnvVarSource envVarSource = new EnvVarSource();
         final ObjectFieldSelector fieldRef = new ObjectFieldSelector();
-//        fieldRef.setApiVersion("org.kie.trustyai/v1alpha1");
-//        fieldRef.setFieldPath(fieldPath);
         envVarSource.setFieldRef(fieldRef);
         var.setValue(fieldPath);
         return var;
