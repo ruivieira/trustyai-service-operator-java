@@ -1,5 +1,9 @@
 package trustyai.kie.org;
 
+import trustyai.kie.org.model.Data;
+import trustyai.kie.org.model.Metrics;
+import trustyai.kie.org.model.Storage;
+
 public class TrustyAIServiceSpec {
 
     public String getImage() {
@@ -11,5 +15,31 @@ public class TrustyAIServiceSpec {
     }
 
     private String image;
+    private Storage storage;
+    private Data data;
+    private Metrics metrics;
 
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public void setStorage(Storage storage) {
+        this.storage = storage;
+    }
+
+    public Data getData() {
+        return data;
+    }
+
+    public void setData(Data data) {
+        this.data = data;
+    }
+
+    public Metrics getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
+    }
 }

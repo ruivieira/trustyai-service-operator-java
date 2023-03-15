@@ -1,10 +1,9 @@
 package trustyai.kie.org;
 
+import java.util.List;
 import java.util.Map;
 
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
-import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -16,7 +15,7 @@ import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ControllerConfiguration(name = "exposedapp", namespaces = Constants.WATCH_CURRENT_NAMESPACE)
+@ControllerConfiguration(name = "trustyai-service", namespaces = Constants.WATCH_CURRENT_NAMESPACE)
 public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
     private final KubernetesClient client;
     static final Logger log = LoggerFactory.getLogger(TrustyAIServiceReconciler.class);
@@ -35,6 +34,24 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         final var spec = resource.getSpec();
         final var imageRef = spec.getImage();
         final var metadata = createMetadata(resource, labels);
+        final var storage = spec.getStorage();
+        final var data = spec.getData();
+        final var metrics = spec.getMetrics();
+
+        // Create environment variables
+        final EnvVar storageFormat = generateEnv("SERVICE_STORAGE_FORMAT", storage.getFormat());
+        final EnvVar storageFolder = generateEnv("STORAGE_DATA_FOLDER", storage.getFolder());
+        final EnvVar dataFormat = generateEnv("SERVICE_DATA_FORMAT", data.getFormat());
+        final EnvVar dataFilename = generateEnv("STORAGE_DATA_FILENAME", data.getFilename());
+        final EnvVar metricsSchedule = generateEnv("SERVICE_METRICS_SCHEDULE", metrics.getSchedule());
+
+        final List<EnvVar> storageEnvironmentVariables = List.of(
+                storageFormat,
+                storageFolder,
+                dataFormat,
+                dataFilename,
+                metricsSchedule
+        );
 
         // @formatter:off
     log.info("Create deployment {}", metadata.getName());
@@ -48,6 +65,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
               .addNewContainer()
                 .withName(name).withImage(imageRef)
                 .addNewPort().withName("http").withProtocol("TCP").withContainerPort(8080).endPort()
+            .withEnv(storageEnvironmentVariables)
               .endContainer()
             .endSpec()
           .endTemplate()
@@ -109,6 +127,18 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
                 .endOwnerReference()
                 .withLabels(labels)
                 .build();
+    }
+
+        public static EnvVar generateEnv(String name, String fieldPath) {
+        final EnvVar var = new EnvVar();
+        var.setName(name);
+        final EnvVarSource envVarSource = new EnvVarSource();
+        final ObjectFieldSelector fieldRef = new ObjectFieldSelector();
+//        fieldRef.setApiVersion("org.kie.trustyai/v1alpha1");
+//        fieldRef.setFieldPath(fieldPath);
+        envVarSource.setFieldRef(fieldRef);
+        var.setValue(fieldPath);
+        return var;
     }
 }
 
