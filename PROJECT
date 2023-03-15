@@ -1,0 +1,12 @@
+domain: org.kie.trustyai
+layout:
+- quarkus.javaoperatorsdk.io/v1-alpha
+projectName: trustyai
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: org.kie.trustyai
+  kind: TrustyAIService
+  version: v1alpha1
+version: "3"
