@@ -26,10 +26,19 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         this.client = client;
     }
 
+    private Map<String, String> generatePrometheusAnnotations(TrustyAIService resource) {
+        final Map<String, String> labels = new HashMap<>();
+        labels.put("prometheus.io/path", "/q/metrics");
+        labels.put("prometheus.io/port", "8080");
+        labels.put("prometheus.io/scheme", "http");
+        return labels;
+    }
+
     @Override
     public UpdateControl<TrustyAIService> reconcile(TrustyAIService resource, Context context) {
 
         final var labels = Map.of(APP_LABEL, resource.getMetadata().getName());
+
         final var name = resource.getMetadata().getName();
         final var spec = resource.getSpec();
         final var imageRef = spec.getImage();
@@ -60,7 +69,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         .withNewSpec()
           .withNewSelector().withMatchLabels(labels).endSelector()
           .withNewTemplate()
-            .withNewMetadata().withLabels(labels).endMetadata()
+            .withNewMetadata().withLabels(labels).withAnnotations(generatePrometheusAnnotations(resource)).endMetadata()
             .withNewSpec()
               .addNewContainer()
                 .withName(name).withImage(imageRef)
@@ -79,7 +88,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         .withNewSpec()
           .addNewPort()
             .withName("http")
-            .withPort(8080)
+            .withPort(80)
             .withNewTargetPort().withIntVal(8080).endTargetPort()
           .endPort()
           .withSelector(labels)
@@ -126,6 +135,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
                 .withKind(resource.getKind())
                 .endOwnerReference()
                 .withLabels(labels)
+                .withAnnotations(generatePrometheusAnnotations(resource))
                 .build();
     }
 
