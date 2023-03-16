@@ -34,6 +34,13 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         return labels;
     }
 
+    private Map<String, String> generateCommonLabels(TrustyAIService resource) {
+        final Map<String, String> labels = new HashMap<>();
+        labels.put("app", "trustyai");
+        labels.put("app.kubernetes.io/part-of", "trustyai");
+        return labels;
+    }
+
     @Override
     public UpdateControl<TrustyAIService> reconcile(TrustyAIService resource, Context context) {
 
@@ -69,7 +76,8 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         .withNewSpec()
           .withNewSelector().withMatchLabels(labels).endSelector()
           .withNewTemplate()
-            .withNewMetadata().withLabels(labels).withAnnotations(generatePrometheusAnnotations(resource)).endMetadata()
+            .withNewMetadata().withLabels(labels).addToLabels(generateCommonLabels(resource))
+                .withAnnotations(generatePrometheusAnnotations(resource)).endMetadata()
             .withNewSpec()
               .addNewContainer()
                 .withName(name).withImage(imageRef)
@@ -134,7 +142,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
                 .withName(metadata.getName())
                 .withKind(resource.getKind())
                 .endOwnerReference()
-                .withLabels(labels)
+                .withLabels(labels).addToLabels(generateCommonLabels(resource))
                 .withAnnotations(generatePrometheusAnnotations(resource))
                 .build();
     }
