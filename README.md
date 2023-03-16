@@ -8,7 +8,8 @@ Operator for the [TrustyAI service](https://github.com/trustyai-explainability/t
 
 Create cluster.
 ```shell
-kind create cluster --image=kindest/node:v1.22.15
+$ kind create cluster --image=kindest/node:v1.22.15
+$ kubectl cluster-info --context kind-kind
 ```
 
 Create namespace (`trustyai` in this example)
@@ -21,7 +22,6 @@ $ kubectl create namespace $NAMESPACE
 Set working namespace.
 
 ```shell
-$ kubectl cluster-info --context kind-kind
 $ kubectl config set-context --current --namespace=$NAMESPACE
 ```
 
@@ -30,7 +30,13 @@ Create service account:
 ```shell
 kubectl create clusterrolebinding default-pod \
   --clusterrole cluster-admin \
-  --serviceaccount=$NAMESPACE:trustyai-operator
+  --serviceaccount=${NAMESPACE}:trustyai-operator
+```
+
+Add Prometheus (needed for the `ServiceMonitor`):
+
+```shell
+kubectl create -f "https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml"
 ```
 
 Add CRD to cluster:
