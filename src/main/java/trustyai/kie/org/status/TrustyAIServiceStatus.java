@@ -1,4 +1,4 @@
-package trustyai.kie.org;
+package trustyai.kie.org.status;
 
 public class TrustyAIServiceStatus {
 

@@ -1,4 +1,4 @@
-package trustyai.kie.org;
+package trustyai.kie.org.spec;
 
 import trustyai.kie.org.model.Data;
 import trustyai.kie.org.model.Metrics;
