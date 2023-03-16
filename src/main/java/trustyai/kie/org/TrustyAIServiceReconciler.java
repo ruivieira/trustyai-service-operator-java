@@ -1,5 +1,6 @@
 package trustyai.kie.org;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,25 +9,43 @@ import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.networking.v1.IngressBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.javaoperatorsdk.operator.api.reconciler.Constants;
+import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.api.reconciler.Context;
-import io.javaoperatorsdk.operator.api.reconciler.ControllerConfiguration;
-import io.javaoperatorsdk.operator.api.reconciler.Reconciler;
-import io.javaoperatorsdk.operator.api.reconciler.UpdateControl;
+import io.javaoperatorsdk.operator.processing.dependent.kubernetes.KubernetesDependentResource;
+import io.javaoperatorsdk.operator.processing.dependent.kubernetes.KubernetesDependentResourceConfig;
+import io.javaoperatorsdk.operator.processing.event.source.EventSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ControllerConfiguration(name = "trustyai-service", namespaces = "trustyai")
-public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
+public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService>, EventSourceInitializer<TrustyAIService> {
     private final KubernetesClient client;
     static final Logger log = LoggerFactory.getLogger(TrustyAIServiceReconciler.class);
     static final String APP_LABEL = "app.kubernetes.io/name";
+    private KubernetesDependentResource<ConfigMap, TrustyAIService> modelMeshConfigMap;
 
     public TrustyAIServiceReconciler(KubernetesClient client) {
         this.client = client;
+        createDependentResources(this.client);
     }
 
-    private Map<String, String> generatePrometheusAnnotations(TrustyAIService resource) {
+    @Override
+    public Map<String, EventSource> prepareEventSources(EventSourceContext<TrustyAIService> context) {
+        return EventSourceInitializer.nameEventSources(this.modelMeshConfigMap.initEventSource(context));
+    }
+
+
+
+    private void createDependentResources(KubernetesClient client) {
+        this.modelMeshConfigMap = new ConfigMapDependentResource();
+
+        Arrays.asList(this.modelMeshConfigMap).forEach(dependentResource -> {
+            dependentResource.setKubernetesClient(client);
+        });
+    }
+
+
+    private Map<String, String> generatePrometheusAnnotations() {
         final Map<String, String> labels = new HashMap<>();
         labels.put("prometheus.io/path", "/q/metrics");
         labels.put("prometheus.io/port", "8080");
@@ -34,7 +53,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         return labels;
     }
 
-    private Map<String, String> generateCommonLabels(TrustyAIService resource) {
+    private Map<String, String> generateCommonLabels() {
         final Map<String, String> labels = new HashMap<>();
         labels.put("app", "trustyai");
         labels.put("app.kubernetes.io/part-of", "trustyai");
@@ -76,8 +95,8 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         .withNewSpec()
           .withNewSelector().withMatchLabels(labels).endSelector()
           .withNewTemplate()
-            .withNewMetadata().withLabels(labels).addToLabels(generateCommonLabels(resource))
-                .withAnnotations(generatePrometheusAnnotations(resource)).endMetadata()
+            .withNewMetadata().withLabels(labels).addToLabels(generateCommonLabels())
+                .withAnnotations(generatePrometheusAnnotations()).endMetadata()
             .withNewSpec()
               .addNewContainer()
                 .withName(name).withImage(imageRef)
@@ -129,6 +148,9 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         .endSpec()
         .build());
 
+    // Reconcile ModelMesh configmap
+        this.modelMeshConfigMap.reconcile(resource, context);
+
         return UpdateControl.noUpdate();
     }
 
@@ -142,8 +164,8 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
                 .withName(metadata.getName())
                 .withKind(resource.getKind())
                 .endOwnerReference()
-                .withLabels(labels).addToLabels(generateCommonLabels(resource))
-                .withAnnotations(generatePrometheusAnnotations(resource))
+                .withLabels(labels).addToLabels(generateCommonLabels())
+                .withAnnotations(generatePrometheusAnnotations())
                 .build();
     }
 
@@ -156,5 +178,6 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService> {
         var.setValue(fieldPath);
         return var;
     }
+
 }
 
