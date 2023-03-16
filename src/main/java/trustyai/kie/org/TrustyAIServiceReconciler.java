@@ -35,8 +35,8 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService>, E
     @Override
     public Map<String, EventSource> prepareEventSources(EventSourceContext<TrustyAIService> context) {
         return EventSourceInitializer.nameEventSources(
-                this.modelMeshConfigMap.initEventSource(context)
-//                this.serviceMonitor.initEventSource(context)
+                this.modelMeshConfigMap.initEventSource(context),
+                this.serviceMonitor.initEventSource(context)
         );
     }
 
@@ -46,7 +46,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService>, E
         this.serviceMonitor = new ServiceMonitorDependentResource();
 
         Arrays.asList(this.modelMeshConfigMap
-//                        , this.serviceMonitor
+                        , this.serviceMonitor
                 )
                 .forEach(dependentResource -> dependentResource.setKubernetesClient(client));
     }
@@ -159,7 +159,7 @@ public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService>, E
         this.modelMeshConfigMap.reconcile(resource, context);
 
         // Reconcile Service Monitor
-//        this.serviceMonitor.reconcile(resource, context);
+        this.serviceMonitor.reconcile(resource, context);
 
         return UpdateControl.noUpdate();
     }
