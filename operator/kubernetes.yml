@@ -3,19 +3,19 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 5c634a9900a8b23f9e5d3d4ad3f8e6cb3930bacb
-    app.quarkus.io/build-timestamp: 2023-03-16 - 20:09:45 +0000
+    app.quarkus.io/commit-id: de2cfd73434b22d5e3f0b5797fb3ae9a6a795a5a
+    app.quarkus.io/build-timestamp: 2023-03-17 - 09:56:12 +0000
   labels:
-    app.kubernetes.io/name: trustyai-operator
     app.kubernetes.io/version: 0.0.1-SNAPSHOT
+    app.kubernetes.io/name: trustyai-operator
   name: trustyai-operator
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 5c634a9900a8b23f9e5d3d4ad3f8e6cb3930bacb
-    app.quarkus.io/build-timestamp: 2023-03-16 - 20:09:45 +0000
+    app.quarkus.io/commit-id: de2cfd73434b22d5e3f0b5797fb3ae9a6a795a5a
+    app.quarkus.io/build-timestamp: 2023-03-17 - 09:56:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8080"
@@ -50,7 +50,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: trustyai-service-role-binding
-  namespace: trustyai
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
@@ -108,34 +107,34 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.quarkus.io/commit-id: 5c634a9900a8b23f9e5d3d4ad3f8e6cb3930bacb
-    app.quarkus.io/build-timestamp: 2023-03-16 - 20:09:45 +0000
+    app.quarkus.io/commit-id: de2cfd73434b22d5e3f0b5797fb3ae9a6a795a5a
+    app.quarkus.io/build-timestamp: 2023-03-17 - 09:56:12 +0000
     prometheus.io/scrape: "true"
     prometheus.io/path: /q/metrics
     prometheus.io/port: "8080"
     prometheus.io/scheme: http
   labels:
-    app.kubernetes.io/name: trustyai-operator
     app.kubernetes.io/version: 0.0.1-SNAPSHOT
+    app.kubernetes.io/name: trustyai-operator
   name: trustyai-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: trustyai-operator
       app.kubernetes.io/version: 0.0.1-SNAPSHOT
+      app.kubernetes.io/name: trustyai-operator
   template:
     metadata:
       annotations:
-        app.quarkus.io/commit-id: 5c634a9900a8b23f9e5d3d4ad3f8e6cb3930bacb
-        app.quarkus.io/build-timestamp: 2023-03-16 - 20:09:45 +0000
+        app.quarkus.io/commit-id: de2cfd73434b22d5e3f0b5797fb3ae9a6a795a5a
+        app.quarkus.io/build-timestamp: 2023-03-17 - 09:56:12 +0000
         prometheus.io/scrape: "true"
         prometheus.io/path: /q/metrics
         prometheus.io/port: "8080"
         prometheus.io/scheme: http
       labels:
-        app.kubernetes.io/name: trustyai-operator
         app.kubernetes.io/version: 0.0.1-SNAPSHOT
+        app.kubernetes.io/name: trustyai-operator
     spec:
       containers:
         - env:
