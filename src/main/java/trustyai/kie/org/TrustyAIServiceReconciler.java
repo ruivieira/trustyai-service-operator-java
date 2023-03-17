@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ControllerConfiguration(name = "trustyai-service", namespaces = "trustyai")
+@ControllerConfiguration(name = "trustyai-service", namespaces = Constants.WATCH_CURRENT_NAMESPACE)
 public class TrustyAIServiceReconciler implements Reconciler<TrustyAIService>, EventSourceInitializer<TrustyAIService> {
     private final KubernetesClient client;
     static final Logger log = LoggerFactory.getLogger(TrustyAIServiceReconciler.class);
